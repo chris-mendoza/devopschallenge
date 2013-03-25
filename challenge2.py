@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
+#Challenge 2:Write a script that clones a server 
+#(takes an image and deploys the image as a new server). Worth 2 Point
+
 import pyrax
 import time
-
 import pyrax.exceptions as exc
 import os
 
@@ -33,15 +35,18 @@ flavor = server.flavor['id']
 
 new_server = cs.servers.create(server_name, image.id, flavor)
 new_serverid = new_server.id
-print "Name:", new_server.name, "\nID:", new_server.id, "\nStatus:", new_server.status, "\nAdmin Password:", new_server.adminPass
+print "Name:", new_server.name, "\nID:", new_server.id, \
+"\nStatus:", new_server.status, "\nAdmin Password:", new_server.adminPass
 
 while not(new_server.networks):
         time.sleep(10)
         new_server = cs.servers.get(new_serverid)
 
-print "\nPublic IP:", new_server.networks["public"][0], "\nPrivate IP:", new_server.networks["private"][0]
+print "\nPublic IP:", new_server.networks["public"][0], \
+"\nPrivate IP:", new_server.networks["private"][0]
 
 print "Waiting for server to build..."
+
 pyrax.utils.wait_until(new_server, "status", ['ACTIVE','ERROR'], interval=30, attempts=40, verbose=True)
 
 print "Server Build Complete"
