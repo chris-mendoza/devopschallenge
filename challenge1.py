@@ -36,7 +36,8 @@ for server in range(len(servreq)):
         server_name = servreq[server]
         new_server = cs.servers.create(server_name, image.id, flavor.id)
         new_serverid = new_server.id
-	print "Name:", new_server.name, "\nID:", new_server.id,\ 		"\nStatus:", new_server.status, "\nAdmin Password:", new_server.adminPass 
+	print "Name:", new_server.name, "\nID:", new_server.id,\
+"\nStatus:", new_server.status, "\nAdmin Password:", new_server.adminPass 
 	while not (new_server.networks)
 		time.sleep(10)
 		new_server = cs.servers.get(new_serverid)
