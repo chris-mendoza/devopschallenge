@@ -28,8 +28,6 @@ print "# of objects:", cont.object_count
 
 print "Uploading Web Content..."
 
-cont.make_public(ttl=900)
-
 upload_key, total_bytes = cf.upload_folder(folder, cont.name)
 
 print "Upload Complete!"
