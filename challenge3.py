@@ -13,7 +13,14 @@ import os
 import sys
 import pyrax.exceptions as exc
 
-pyrax.set_credentials("cmendoza89", "15c9d8d539ee70bf12865151fce55ee0")
+creds_file = os.path.expanduser("~/.rackspace_cloud_credentials")
+
+try:
+        pyrax.set_credential_file(creds_file)
+except exc.AuthenticationFailed:
+        print "Problem with credential file ~./rackspace_cloud_credentials"
+print "Authenticated =", pyrax.identity.authenticated
+print
 
 pyrax.authenticate()
 
