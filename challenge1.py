@@ -8,7 +8,7 @@
 import pyrax
 import pyrax.exceptions as exc
 import os
-
+import time
 
 creds_file= os.path.expanduser("~/.rackspace_cloud_credentials")
 
@@ -38,7 +38,7 @@ for server in range(len(servreq)):
         new_serverid = new_server.id
 	print "Name:", new_server.name, "\nID:", new_server.id,\
 "\nStatus:", new_server.status, "\nAdmin Password:", new_server.adminPass 
-	while not (new_server.networks)
+	while not (new_server.networks):
 		time.sleep(10)
 		new_server = cs.servers.get(new_serverid)
 	print "Public IP", new_server.networks["public"][0], "\nPrivate IP", new_server.networks["private"][0]
