@@ -41,5 +41,5 @@ for server in range(len(servreq)):
 	while not (new_server.networks):
 		time.sleep(10)
 		new_server = cs.servers.get(new_serverid)
-	print "Public IP", new_server.networks["public"][0], "\nPrivate IP", new_server.networks["private"][0]
+print "Public IP", new_server.networks["public"][0], "\nPrivate IP", new_server.networks["private"][0]
 
