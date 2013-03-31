@@ -30,23 +30,23 @@ ip_address = raw_input("Enter the IP Address:")
 
 #Raise an exception if the domain nam does not exist.
 try:
-	dom = dns.find(name=domain_name)
+        dom = dns.find(name=domain_name)
 except exc.NotFound:
-	answer = raw_input("The domain '%s' was not found. Do you want to create it? [y/n]" % domain_name)
-	if not answer.lower().startswith("y"):
-		sys.exit()
-	try:
-		dom = dns.create(name=domain_name, emailAddress="sample@example.com", ttl=900, comment="sampledomain")
-	except exc.DomainCreationFailed as e:
-		print "Domain creation failed:", e
-	print "Domain created:", dom
-	print
+        answer = raw_input("The domain '%s' was not found. Do you want to create it? [y/n]" % domain_name)
+        if not answer.lower().startswith("y"):
+                sys.exit()
+        try:
+                dom = dns.create(name=domain_name, emailAddress="sample@example.com", ttl=900, comment="sampledomain")
+        except exc.DomainCreationFailed as e:
+                print "Domain creation failed:", e
+        print "Domain created:", dom
+        print
 
 #Construct a list for your A record data, and insert it into a variable.
 a_rec = {"type": "A",
-	"name": domain_name,
-	"data": ip_address,
-	"ttl": 6000}
+        "name": domain_name,
+        "data": ip_address,
+        "ttl": 6000}
 #Add the domain record with the dom variable used earlier.
 recs = dom.add_records([a_rec])
 
