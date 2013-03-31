@@ -12,6 +12,8 @@ import pyrax
 import os
 import sys
 import pyrax.exceptions as exc
+import fnmatch
+
 
 #Begin authentication script
 creds_file = os.path.expanduser("~/.rackspace_cloud_credentials")
@@ -44,22 +46,27 @@ contname = raw_input("Which container would you like to upload this to?\n")
 print "Contname:", contname
 
 #List all of the cloudfiles container, and dump them into a variable.
-objs = cf.list_containers()
+obj_list = [obj for obj in cf.list_containers()
+	if fnmatch.fnmatch(contname, obj)]
+
+objs = str(obj_list)[3:-2] 
+print objs 
 
 #If the container does not exist, it is created automatically,
 #otherwise it asks if you would like to overwrite any files that 
 #have the same name.
 
-if set(contname).issubset(objs) != True:
-        print "Container does not exist, create it now!"
-        cont = cf.create_container(contname)
-else:
+if contname == objs:
         print "These containers are the same!"
         answer = raw_input("Would you like to continue anyway? This may overwrite some data![y/n]")
-	if not answer.lower().startswith("y"):
+        if not answer.lower().startswith("y"):
                 sys.exit()
         else:
                 cont = cf.create_container(contname)
+   
+else:
+        print "Container does not exist, create it now!"
+        cont = cf.create_container(contname) 
 
 #Return all the valuable data about our container.
 print "Name:", cont.name, \
@@ -72,12 +79,9 @@ upload_key, total_bytes = cf.upload_folder(folder, container=contname)
 
 print "\n Upload Complete!"
 #Ask if you want CDN enabled every time it syncs.
-if cont.cdn_enabled == False:
-        answer2 = raw_input("Would you like to CDN Enable this container?[y/n]")
-if not answer2.lower().startswith("y"):
-        
+if cont.cdn_enabled == True:
         print "-"*30, "\nName:", cont.name, \
-        "\n# of objects:", cont.object_count,\
+        "\n# of objects:", cont.object_count, \
         "\ncdn_enabled", cont.cdn_enabled, \
         "\ncdn_ttl", cont.cdn_ttl, \
         "\ncdn_log_retention", cont.cdn_log_retention, \
@@ -85,14 +89,22 @@ if not answer2.lower().startswith("y"):
         "\ncdn_ssl_uri", cont.cdn_ssl_uri, \
         "\ncdn_streaming_uri", cont.cdn_streaming_uri
         sys.exit()
-else:
-        cont.make_public(ttl=900)
-        print "-"*30, "\nName:", cont.name, \
-        "\n# of objects:", cont.object_count,\
-        "\ncdn_enabled", cont.cdn_enabled, \
-        "\ncdn_ttl", cont.cdn_ttl, \
-        "\ncdn_log_retention", cont.cdn_log_retention, \
-        "\ncdn_uri", cont.cdn_uri, \
-        "\ncdn_ssl_uri", cont.cdn_ssl_uri, \
-        "\ncdn_streaming_uri", cont.cdn_streaming_uri
 
+elif cont.cdn_enabled == False:
+        answer2 = raw_input("Would you like to CDN Enable this container?[y/n]")
+	if answer2.lower().startswith("y"):
+                cont.make_public(ttl=900)
+                print "-"*30, "\nName:", cont.name, \
+                "\n# of objects:", cont.object_count,\
+                "\ncdn_enabled", cont.cdn_enabled, \
+                "\ncdn_ttl", cont.cdn_ttl, \
+                "\ncdn_log_retention", cont.cdn_log_retention, \
+                "\ncdn_uri", cont.cdn_uri, \
+                "\ncdn_ssl_uri", cont.cdn_ssl_uri, \
+                "\ncdn_streaming_uri", cont.cdn_streaming_uri        
+        
+        elif not answer2.lower().startswith("y"):
+                print "-"*30, "\nName:", cont.name, \
+                "\n# of objects:", cont.object_count, \
+                "\ncdn_enabled", cont.cdn_enabled, \
+                sys.exit()
