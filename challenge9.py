@@ -25,41 +25,42 @@ domain_name = raw_input("What is the FQDN we are going to use? \n")
 
 #Create an interactive interface to easily choose your image.
 
-a = 1
-while a:
-        inputid = raw_input("Type in Image Name:\n")
-        new_input = inputid.strip("use: ")
+i = 1
+while i:
+        img_in = raw_input("Type in Image Name:\n")
 
         search_image = [img for img in cs.images.list()
-         if inputid in img.name]
+         if img_in in img.name]
 
         print search_image
 
-        if "use:" in inputid: 
-                saved_img = [img for img in cs.images.list()
-                             if new_input in img.name]
-                print "Using image: ", saved_img
-                a = 0
+
+        if "use:" in img_in: 
+             img_out = img_in.strip("use:")
+             saved_img = [img for img in cs.images.list()
+                             if img_out in img.name][0]
+             print "Using image: ", saved_img
+             i = 0
 
 
 #Create an interactive interface to easily choose your flavor.
 
 i = 1
 while i:
-        flavorid = raw_input("Insert Flavor ID:\n")
-        new_flv = flavorid.strip("use:")
+        flv_in = raw_input("Insert Flavor ID:\n")
+        
+        search_flavor = [flv for flv in cs.flavors.list()
+                   if flv_in in flv.name]
 
-        flavor = [flv for flv in cs.flavors.list()
-                   if flavorid in flv.name]
+        print search_flavor
 
-        print flavor
+        if "use:" in flv_in:
+                flv_out = flv_in.strip("use:")
+                saved_flv = [flv for flv in cs.flavors.list()
+                           if flv_out in flv.name][0]
 
-        if "use:" in flavorid:
-                save_flv = [flv for flv in cs.flavors.list()
-                           if new_flv in flv.name]
-
-                print "Using flavor: ", new_flv
+                print "Using flavor: ", saved_flv 
                 i = 0
 
 #Create the server 
-new_server = cs.servers.create(domain_name, saved_img, save_flv)
+new_server = cs.servers.create(domain_name, saved_img, saved_flv)
