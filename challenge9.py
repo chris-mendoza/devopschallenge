@@ -4,6 +4,7 @@ import pyrax
 import pyrax.exceptions as exc
 import os
 import sys
+import time
 
 #Tell the program where to find our login credentials.
 creds_file= os.path.expanduser("~/.rackspace_cloud_credentials")
@@ -64,3 +65,50 @@ while i:
 
 #Create the server 
 new_server = cs.servers.create(domain_name, saved_img, saved_flv)
+new_serverid = new_server.id
+server_pass = new_server.adminPass
+
+#Wait for networking to populate before moving on.
+while not (new_server.networks):
+        #wait 30 seconds before moving on
+        time.sleep(50)
+        print "Waiting for networking"
+        #refreshes the new_server value to be tested again on next iteration
+        new_server = cs.servers.get(new_serverid)
+        #Print out networking information
+       
+      
+print "-"*30, "\nName:", new_server.name, "\nID:", new_server.id,\
+"\nStatus:", new_server.status, "\nAdmin Password:", server_pass
+print "IPv4:", new_server.networks, \
+"\nIPv6:", new_server.networks["public"][0], \
+"\nPrivate IP", new_server.networks["private"][0]
+
+ip_address = new_server.networks["public"][1]
+
+#Raise an exception if the domain nam does not exist.
+try:
+        dom = dns.find(name=domain_name)
+except exc.NotFound:
+        answer = raw_input("The domain '%s' was not found. Do you want to create it? [y/n]" % domain_name)
+        if not answer.lower().startswith("y"):
+                sys.exit()
+        try:
+                dom = dns.create(name=domain_name, emailAddress="sample@example.com", ttl=900, comment="sampledomain")
+        except exc.DomainCreationFailed as e:
+                print "Domain creation failed:", e
+        print "Domain created:", dom
+        print
+
+#Construct a list for your A record data, and insert it into a variable.
+a_rec = {"type": "A",
+        "name": domain_name,
+        "data": ip_address,
+        "ttl": 6000}
+
+#Add the domain record with the dom variable used earlier.
+recs = dom.add_records([a_rec])
+
+print recs
+print
+
