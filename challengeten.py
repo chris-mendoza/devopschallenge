@@ -45,6 +45,7 @@ ssh_usr = raw_input("Which user's key are we going to export?(Press enter to use
 
 usr_home = "~"+ssh_usr
 
+
 srv_host = os.uname()[1]
 
 if ssh_usr == "":
@@ -67,7 +68,7 @@ if os.path.isfile(pub_path) is False:
                 f.close()
 
                 rsa_key.save_key(priv_path, cipher=None)
-                os.chmod(priv_path, 600)
+                os.chmod(priv_path, 0600)
 
 		print "Saved SSH Key To local System: \n", pub_path
                               
