@@ -57,8 +57,8 @@ if os.path.isfile(pub_path) is False:
                 print "The keys to the user: "+ssh_usr+" does not exist"
                 print "Creating a key pair now..."
                 rsa_key = RSA.gen_key(2048, 65537)
-                pub_key = 'ssh-rsa %s %s@%s' % (base64.b64encode('\0\0\0\7ssh-rsa%s ' % (rsa_key.pub)), ssh_usr, srv_host) 
-#                pub_key = 'ssh-rsa %s %s@%s' % (base64.b64encode(str(rsa_key.pub)), ssh_usr, srv_host)
+                pub_key = 'ssh-rsa %s %s@%s' % (base64.b64encode('\0\0\0\7ssh-rsa%s%s ' % (rsa_key.pub()[0], rsa_key.pub()[1])), ssh_usr, srv_host) 
+
 
                 print pub_key
 
@@ -68,9 +68,6 @@ if os.path.isfile(pub_path) is False:
 
                 rsa_key.save_key(priv_path, cipher=None)
                 os.chmod(priv_path, 600)
-                #f1 = open(priv_path, "w")
-                #f1.write(priv_key)
-                #f1.close()
 
 		print "Saved SSH Key To local System: \n", pub_path
                               
