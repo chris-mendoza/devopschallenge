@@ -67,7 +67,7 @@ if os.path.isfile(pub_path) is False:
                 f.close()
 
                 rsa_key.save_key(priv_path, cipher=None)
-                os.chmod(priv_path, 644)
+                os.chmod(priv_path, 600)
                 #f1 = open(priv_path, "w")
                 #f1.write(priv_key)
                 #f1.close()
