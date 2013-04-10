@@ -101,17 +101,15 @@ while i:
 
 i = 1
 while i:
-        flv_in = raw_input("Choose flavor by Name(I.E.: 512MB Standard Instance):\n")
+        flv_in = raw_input("Choose flavor by Name(I.E.: 512):\n")
 
-        search_flavor = [flv for flv in cs.flavors.list()
-                   if flv_in in flv.name]
-
+        search_flavor = [flv for flv in cs.flavors.list()]
         print search_flavor
 
         if "use:" in flv_in:
                 flv_out = flv_in.strip("use:")
                 saved_flv = [flv for flv in cs.flavors.list()
-                           if flv_out in flv.name][0]
+                           if flv_out in str(flv.ram)][0]
 
                 print "Using flavor: ", saved_flv
                 i = 0
