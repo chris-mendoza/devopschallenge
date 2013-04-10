@@ -74,29 +74,103 @@ if os.path.isfile(pub_path) is False:
                               
 ssh_key = open(pub_path).read()                 
 
+#Specify where the ssh key is going to be uploaded on the created server,
+#and give it the data to upload
 files = {"/root/.ssh/authorized_keys": ssh_key}
 
-print "Creating Server"
+#Interactively specify which image we're going to use
+i = 1
+while i:
+        img_in = raw_input("Type in Image Name:\n")
 
-image = [img for img in cs.images.list()
-         if "6.3 in img.name"][0]
+        search_image = [img for img in cs.images.list()
+         if img_in in img.name]
 
-flavor = [flv for flv in cs.flavors.list()
-         if flv.ram == 512][0]
+        print search_image
 
-new_server = cs.servers.create(serv_pre, image, flavor, files=files)
 
-new_serverid = new_server.id
-server_pass = new_server.adminPass
+        if "use:" in img_in:
+             img_out = img_in.strip("use:")
+             saved_img = [img for img in cs.images.list()
+                             if img_out in img.name][0]
+             print "Using image: ", saved_img
+             i = 0
 
-while not (new_server.networks):
-	time.sleep(50)
-	print "Waiting for networking"
-	new_server = cs.servers.get(new_serverid)
 
-print "-"*30, "\nName:", new_server.name, "\nID:", new_server.id,\
-"\nStatus:", new_server.status, "\nAdmin Password:", server_pass
-print "IPv4:", new_server.networks, \
-"\nIPv6:", new_server.networks["public"][0], \
-"\nPrivate IP", new_server.networks["private"][0]
+#Interactively specify which flavor to use
 
+i = 1
+while i:
+        flv_in = raw_input("Choose flavor by Name(I.E.: 512MB Standard Instance):\n")
+
+        search_flavor = [flv for flv in cs.flavors.list()
+                   if flv_in in flv.name]
+
+        print search_flavor
+
+        if "use:" in flv_in:
+                flv_out = flv_in.strip("use:")
+                saved_flv = [flv for flv in cs.flavors.list()
+                           if flv_out in flv.name][0]
+
+                print "Using flavor: ", saved_flv
+                i = 0
+
+#Create Servers
+print "How many servers would you like to create?"
+servernum = int(raw_input())
+
+#Define load balancer info
+
+vip = clb.VirtualIP(type="PUBLIC")
+
+lbname = serv_pre+"LB"
+
+node = []
+
+srv_names = []
+#A loop to create the desired amount of servers, with the desired prefix,
+#and a different name...
+for i in xrange(1, servernum+1, 1):
+
+        #append the prefix to a number so all the names aren't the same
+        name = serv_pre + str(i)
+
+        #add the name to the list ever iteration.
+        srv_names.extend([name])
+
+        #grab the last server on the list, always. 
+        server_name = (max(srv_names))
+
+        #Create the server, using the user specified data
+        new_server = cs.servers.create(server_name, saved_img, saved_flv, files=files)
+
+        #print out server information.
+        print "-"*30, "\nName:", new_server.name, "\nID:", new_server.id,\
+        "\nStatus:", new_server.status, "\nAdmin Password:", new_server.adminPass
+
+        #used in the while loop to refresh the variable every iteration.       
+        new_serverid = new_server.id
+
+        #Wait for networking to populate before moving on.
+        while not (new_server.networks):
+                #wait 30 seconds before moving on
+                time.sleep(60)
+        #refreshes the new_server value to be tested on next iteration
+                new_server = cs.servers.get(new_serverid)
+                #Print out networking information
+                ipv4_ip = new_server.networks["public"][1]
+                ipv6_ip = new_server.networks["public"][0]
+                priv_ip = new_server.networks["private"][0]
+
+
+                print "IPv4:", ipv4_ip, \
+                "\nIPv6:", ipv6_ip, \
+                "\nPrivate IP", priv_ip
+
+                node.append(clb.Node(address=priv_ip, port=80, condition="ENABLED"))
+                print node
+
+#Create/Add this servers to the LB
+new_lb = clb.create(lbname, port=80, protocol="HTTP", nodes=max([node]), virtual_ips=[vip])
+                       
